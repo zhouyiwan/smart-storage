@@ -1,6 +1,3 @@
-declare let a: string
-console.log(a)
-
 // 尝试将字符串作为json字符串解析
 function tryParseStringAsJson(val: string | null) {
   if (val == null) return val
@@ -102,6 +99,6 @@ function factoryWebStorage(keyPath: string[] = []): WebStorage {
   })
 }
 
-const webstorage = factoryWebStorage()
+const smartWebStorage = factoryWebStorage()
 
-export { webstorage }
+export default smartWebStorage

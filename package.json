@@ -1,5 +1,5 @@
 {
-  "name": "smart-storage",
+  "name": "smart-web-storage",
   "version": "0.0.1",
   "description": "localstorage操作工具",
   "keywords": [
@@ -7,13 +7,13 @@
     "webstorage"
   ],
   "license": "MIT",
-  "author": "yiwanzhou",
-  "homepage": "https://github.com/yiwanzhou/smart-storage",
-  "repository": "https://github.com/yiwanzhou/smart-storage",
-  "bugs": "https://github.com/yiwanzhou/smart-storage/issues",
+  "author": "zhouyiwan",
+  "homepage": "https://github.com/zhouyiwan/smart-storage",
+  "repository": "https://github.com/zhouyiwan/smart-storage",
+  "bugs": "https://github.com/zhouyiwan/smart-storage/issues",
   "main": "./lib/index.js",
   "types": "./es/index.d.ts",
-  "unpkg": "dist/smart-storage.js",
+  "unpkg": "dist/smart-web-storage.js",
   "module": "es/index.js",
   "files": [
     "dist",
@@ -24,8 +24,8 @@
   "scripts": {
     "build:commonjs": "cross-env BABEL_ENV=commonjs babel src --extensions \".js,.ts\" --out-dir lib",
     "build:es": "babel src --extensions \".js,.ts\" --out-dir es",
-    "build:umd": "cross-env NODE_ENV=development rollup -c -o dist/smart-storage.js",
-    "build:umd:min": "cross-env NODE_ENV=production rollup -c -o dist/smart-storage.min.js",
+    "build:umd": "cross-env NODE_ENV=development rollup -c -o dist/smart-web-storage.js",
+    "build:umd:min": "cross-env NODE_ENV=production rollup -c -o dist/smart-web-storage.min.js",
     "build:types": "tsc",
     "build": "yarn build:types && yarn build:commonjs && yarn build:es && yarn build:umd && yarn build:umd:min",
     "clean": "rimraf lib dist es coverage",
