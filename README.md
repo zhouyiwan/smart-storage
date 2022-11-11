@@ -1,0 +1,2 @@
+# smart-storage
+webstorage/localstorage
