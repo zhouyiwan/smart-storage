@@ -4,6 +4,8 @@
 
 ## 安装
 
+**注意：smart-web-storage库基于Proxy实现，所以需要浏览器环境支持Proxy。**
+
 ```sh
 npm install smart-web-storage
 yarn add smart-web-storage

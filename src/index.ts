@@ -81,6 +81,11 @@ interface WebStorage {
 }
 
 function factoryWebStorage(keyPath: string[] = []): WebStorage {
+  if (typeof Proxy === 'undefined') {
+    console.error('Proxy is not defined')
+    return () => {}
+  }
+
   let innerKeyPath = keyPath.slice()
   // eslint-disable-next-line
   return new Proxy((() => {}) as WebStorage, {
