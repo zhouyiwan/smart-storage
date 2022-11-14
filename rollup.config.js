@@ -14,7 +14,7 @@ const config = {
   external: Object.keys(pkg.peerDependencies || {}),
   output: {
     format: 'umd',
-    name: 'ReactRedux',
+    name: 'smartWebStorage',
   },
   plugins: [
     pluginNodeResolve({
