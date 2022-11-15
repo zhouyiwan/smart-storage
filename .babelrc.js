@@ -8,6 +8,8 @@ module.exports = {
       {
         targets: {
           esmodules: true,
+          // "chrome": "58",
+          // "ie": "11"
         },
         // Use the equivalent of `babel-preset-modules`
         bugfixes: true,

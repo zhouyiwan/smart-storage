@@ -14,25 +14,20 @@ function tryParseStringAsJson(val: string | null) {
   return val
 }
 
-function parseValue(keyPath: string[] = []) {
+function getValueByPath(keyPath: string[] = []) {
   if (!keyPath.length) return null
-  const topLevelKey = keyPath[0]
+  const firstKey = keyPath[0]
   const resetKeyPath = keyPath.slice(1)
 
   const valueInLocal = tryParseStringAsJson(
-    window.localStorage.getItem(topLevelKey)
+    window.localStorage.getItem(firstKey)
   )
 
-  if (resetKeyPath.length === 0) return valueInLocal
-
-  if (valueInLocal && typeof valueInLocal === 'object') {
-    return getValueByKeyPath(resetKeyPath, valueInLocal)
-  } else {
-    throw Error('获取不到值' + keyPath)
-  }
+  return getValueByKeyPath(resetKeyPath, valueInLocal)
 
   function getValueByKeyPath(innerkeyPath: string[], obj: object) {
     return innerkeyPath.reduce((res, curKey) => {
+      if (res == null) return res
       return (res as any)[curKey]
     }, obj)
   }
@@ -49,7 +44,7 @@ function setValue(keyPath: string[], value: string) {
 
   const firstKey = keyPath[0]
 
-  let navtiveStorageValue = parseValue([firstKey])
+  let navtiveStorageValue = getValueByPath([firstKey])
 
   if (navtiveStorageValue == null) {
     navtiveStorageValue = {}
@@ -59,12 +54,12 @@ function setValue(keyPath: string[], value: string) {
 
   const resetKeys = keyPath.slice(1, -1)
 
-  let curItem = navtiveStorageValue || {}
+  let curItem: { [index: string]: any } = navtiveStorageValue || {}
 
   for (var i = 0, len = resetKeys.length; i < len; i++) {
     if (curItem[resetKeys[i]] === undefined) {
       curItem[resetKeys[i]] = {}
-    } // else {}
+    }
     curItem = curItem[resetKeys[i]]
   }
 
@@ -76,14 +71,16 @@ function setValue(keyPath: string[], value: string) {
 }
 
 interface WebStorage {
-  (): void
+  (): any
   [index: string]: any
 }
 
 function factoryWebStorage(keyPath: string[] = []): WebStorage {
   if (typeof Proxy === 'undefined') {
     console.error('Proxy is not defined')
-    return () => {}
+    return function _() {
+      return _
+    }
   }
 
   let innerKeyPath = keyPath.slice()
@@ -97,9 +94,10 @@ function factoryWebStorage(keyPath: string[] = []): WebStorage {
       setValue([...innerKeyPath, propKey], value)
       return value
     },
-    apply() {
-      if (innerKeyPath.length === 0) return
-      return parseValue([...innerKeyPath])
+    // 如果获取的值不存在怎么办？
+    apply(): any {
+      // if (innerKeyPath.length === 0) return
+      return getValueByPath([...innerKeyPath])
     },
   })
 }

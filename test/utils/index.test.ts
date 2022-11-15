@@ -26,12 +26,33 @@ class LocalStorageMock {
 
 Object.defineProperty(window, 'localStorage', { value: new LocalStorageMock() })
 
-describe('正常', () => {
-  test('获取', () => {
+describe('正确性测试', () => {
+  test('常规测试', () => {
     expect(webstorage.a()).toBe(null)
     webstorage.a = 1
     expect(webstorage.a()).toBe('1')
-    expect((webstorage.a1.b.c.d = 1))
-    expect(webstorage.a1.b.c.d()).toBe(1)
+    // a1: '{"b": {"c": 1}}'
+    expect((webstorage.a1.b.c = 1))
+    expect(webstorage.a1.b.c()).toBe(1)
+    expect(webstorage.a1.b()).toEqual({ c: 1 })
+  })
+
+  test('引用测试', () => {
+    const a1 = webstorage.a1
+    expect(a1()).toEqual({ b: { c: 1 } })
+    expect(a1()).toEqual({ b: { c: 1 } })
+    expect(a1.b()).toEqual({ c: 1 })
+  })
+
+  test('获取不到值', () => {
+    expect(webstorage.b1.c1.e1()).toEqual(null)
+    webstorage.b2 = JSON.stringify({ a: 1 })
+    expect(webstorage.b2.b()).toEqual(undefined)
+    expect(webstorage.b2.b.c()).toEqual(undefined)
+  })
+
+  test('proxy不兼容测试', () => {
+    Object.defineProperty(window, 'Proxy', { value: undefined })
+    // expect(webstorage.b1.c1.e1()).toEqual(() => {})
   })
 })
