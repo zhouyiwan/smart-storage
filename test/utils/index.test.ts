@@ -49,6 +49,7 @@ describe('正确性测试', () => {
     webstorage.b2 = JSON.stringify({ a: 1 })
     expect(webstorage.b2.b()).toEqual(undefined)
     expect(webstorage.b2.b.c()).toEqual(undefined)
+    expect(webstorage.b3()).toEqual(null)
   })
 
   test('proxy不兼容测试', () => {
