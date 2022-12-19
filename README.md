@@ -17,32 +17,28 @@ yarn add smart-web-storage
 // localstorage -> a: 1
 import smartWebStorage from 'smart-web-storage'
 
-try {
-  smartWebStorage.a() // '1'
+smartWebStorage.a() // '1'
 
-  smartWebStorage.a = 2
+smartWebStorage.a = 2
 
-  smartWebStorage.a() // '2'
+smartWebStorage.a() // '2'
 
-  smartWebStorage.b.c = 1
+smartWebStorage.b.c = 1
 
-  smartWebStorage.b() // {c: 1}
+smartWebStorage.b() // {c: 1}
 
-  smartWebStorage.b.e = 2
+smartWebStorage.b.e = 2
 
-  smartWebStorage.b() // {c: 1, e: 2}
+smartWebStorage.b() // {c: 1, e: 2}
 
-  smartWebStorage.b.b() // undefined
+smartWebStorage.b.b() // undefined
 
-  smartWebStorage.b.b.b() // undefined
+smartWebStorage.b.b.b() // undefined
 
-  smartWebStorage.b1() // null
-} catch (ex) {
-  console.error(ex)
-}
+smartWebStorage.b1() // null
 ```
 
-**注意：localstorage的读取和写入都有失败风险，所以需要try..catch..包裹，防止报错。并且对于获取值是否如预期也要做好容错处理。**
+**注意：localstorage的读取和写入都有失败风险，所以设置和读取都有可能出现意料之外的情况，虽然smartWebStoreage会兜底异常，但是异常后读取的值无法兜底需要用户手动处理。**
 
 ## License
 
