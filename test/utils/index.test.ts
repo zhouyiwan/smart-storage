@@ -27,6 +27,12 @@ class LocalStorageMock {
 Object.defineProperty(window, 'localStorage', { value: new LocalStorageMock() })
 
 describe('正确性测试', () => {
+  test('测试数组字符串', () => {
+    webstorage.a11 = JSON.stringify([{ a: 1 }])
+    expect(webstorage.a11.a()).toBe(undefined)
+    expect(webstorage.a11[0].a()).toBe(1)
+  })
+
   test('常规测试', () => {
     expect(webstorage.a()).toBe(null)
     webstorage.a = 1
@@ -50,6 +56,20 @@ describe('正确性测试', () => {
     expect(webstorage.b2.b()).toEqual(undefined)
     expect(webstorage.b2.b.c()).toEqual(undefined)
     expect(webstorage.b3()).toEqual(null)
+  })
+
+  test('setItem异常测试', () => {
+    LocalStorageMock.prototype.setItem = function () {
+      throw new Error('1')
+    }
+
+    expect((webstorage.abc = 1)).toEqual(1)
+
+    LocalStorageMock.prototype.getItem = function () {
+      throw new Error('1')
+    }
+
+    expect(webstorage.abc()).toEqual(null)
   })
 
   test('proxy不兼容测试', () => {

@@ -11,7 +11,7 @@ const tsTestFolderPath = (folderName) =>
 
 const tsStandardConfig = {
   ...defaults,
-  displayName: 'ReactDOM 18 (Shim)',
+  displayName: 'smart-web-storage',
   preset: 'ts-jest',
   testMatch: NORMAL_TEST_FOLDERS.map(tsTestFolderPath),
 }
