@@ -5,7 +5,12 @@ function tryParseStringAsJson(val: string | null) {
   const innerVal = val.trim()
   if (innerVal.length < 2) return val
   try {
-    if (innerVal[0] === '{' && innerVal[innerVal.length - 1] === '}')
+    const firstChar = innerVal[0]
+    const lastChar = innerVal[innerVal.length - 1]
+    if (
+      (firstChar === '{' && lastChar === '}') ||
+      (firstChar === '[' && lastChar == ']')
+    )
       return JSON.parse(innerVal)
   } catch (ex) {
     console.error(ex)
@@ -17,13 +22,19 @@ function tryParseStringAsJson(val: string | null) {
 function getValueByPath(keyPath: string[] = []) {
   if (!keyPath.length) return null
   const firstKey = keyPath[0]
-  const resetKeyPath = keyPath.slice(1)
+  const restKeyPath = keyPath.slice(1)
 
-  const valueInLocal = tryParseStringAsJson(
-    window.localStorage.getItem(firstKey)
-  )
+  let rawDataFromStorage = null
 
-  return getValueByKeyPath(resetKeyPath, valueInLocal)
+  try {
+    rawDataFromStorage = window.localStorage.getItem(firstKey)
+  } catch (ex) {
+    return null
+  }
+
+  const valueInLocal = tryParseStringAsJson(rawDataFromStorage)
+
+  return getValueByKeyPath(restKeyPath, valueInLocal)
 
   function getValueByKeyPath(innerkeyPath: string[], obj: object) {
     return innerkeyPath.reduce((res, curKey) => {
@@ -38,8 +49,13 @@ function setValue(keyPath: string[], value: string) {
   const innerValue = value
 
   if (keyPath.length === 1) {
-    window.localStorage.setItem(keyPath[0], innerValue)
-    return
+    try {
+      window.localStorage.setItem(keyPath[0], innerValue)
+    } catch (ex) {
+      console.error(ex)
+      return false
+    }
+    return true
   }
 
   const firstKey = keyPath[0]
@@ -49,7 +65,8 @@ function setValue(keyPath: string[], value: string) {
   if (navtiveStorageValue == null) {
     navtiveStorageValue = {}
   } else if (typeof navtiveStorageValue !== 'object') {
-    return
+    console.error('不能设置基础值的属性')
+    return false
   }
 
   const resetKeys = keyPath.slice(1, -1)
@@ -67,7 +84,12 @@ function setValue(keyPath: string[], value: string) {
 
   curItem[lastKey] = innerValue
 
-  window.localStorage.setItem(keyPath[0], JSON.stringify(navtiveStorageValue))
+  try {
+    window.localStorage.setItem(keyPath[0], JSON.stringify(navtiveStorageValue))
+    return true
+  } catch (ex) {
+    return false
+  }
 }
 
 interface WebStorage {
@@ -92,7 +114,7 @@ function factoryWebStorage(keyPath: string[] = []): WebStorage {
     set(target, propKey: string, value) {
       // 重新格式化重新设置
       setValue([...innerKeyPath, propKey], value)
-      return value
+      return true
     },
     // 如果获取的值不存在怎么办？
     apply(): any {
