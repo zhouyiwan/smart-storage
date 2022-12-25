@@ -94,8 +94,9 @@ function setValue(keyPath: string[], value: string) {
   }
 }
 
-interface WebStorage {
-  (): any
+interface WebStorage<T = any> {
+  (defaultVale?: DefaultValue<T>): T
+  // TOFIX: 类型不确定
   [index: string]: any
 }
 
@@ -104,12 +105,12 @@ function factoryWebStorage(keyPath: string[] = []): WebStorage {
     console.error('Proxy is not defined')
     return function _() {
       return _
-    }
+    } as any
   }
 
   let innerKeyPath = keyPath.slice()
   // eslint-disable-next-line
-  return new Proxy((() => { }) as WebStorage, {
+  return new Proxy((() => { }) as unknown as WebStorage, {
     get(target, propKey: string) {
       return factoryWebStorage([...innerKeyPath, propKey])
     },
@@ -120,7 +121,7 @@ function factoryWebStorage(keyPath: string[] = []): WebStorage {
     },
     // 如果获取的值不存在怎么办？
     // @ts-ignore
-    apply<T = unknown>(target, slef: DefaultValue<T>, [defaultValue]) {
+    apply<T = unknown>(target, self, [defaultValue]) {
       // if (innerKeyPath.length === 0) return
       return getValue(
         getValueByPath([...innerKeyPath]) as unknown as T,
