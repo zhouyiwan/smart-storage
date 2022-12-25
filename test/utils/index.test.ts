@@ -33,6 +33,11 @@ describe('正确性测试', () => {
     expect(webstorage.a11[0].a()).toBe(1)
   })
 
+  test('默认值测试', () => {
+    expect(webstorage.notfound.a(1)).toBe(1)
+    expect(webstorage.notfound.a(() => 'notfound')).toBe('notfound')
+  })
+
   test('常规测试', () => {
     expect(webstorage.a()).toBe(null)
     webstorage.a = 1

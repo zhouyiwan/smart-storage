@@ -1,3 +1,5 @@
+import { getValue, DefaultValue } from './utils'
+
 // 尝试将字符串作为json字符串解析
 function tryParseStringAsJson(val: string | null) {
   if (val == null) return val
@@ -107,7 +109,7 @@ function factoryWebStorage(keyPath: string[] = []): WebStorage {
 
   let innerKeyPath = keyPath.slice()
   // eslint-disable-next-line
-  return new Proxy((() => {}) as WebStorage, {
+  return new Proxy((() => { }) as WebStorage, {
     get(target, propKey: string) {
       return factoryWebStorage([...innerKeyPath, propKey])
     },
@@ -117,9 +119,13 @@ function factoryWebStorage(keyPath: string[] = []): WebStorage {
       return true
     },
     // 如果获取的值不存在怎么办？
-    apply(): any {
+    // @ts-ignore
+    apply<T = unknown>(target, slef: DefaultValue<T>, [defaultValue]) {
       // if (innerKeyPath.length === 0) return
-      return getValueByPath([...innerKeyPath])
+      return getValue(
+        getValueByPath([...innerKeyPath]) as unknown as T,
+        defaultValue
+      ) as unknown as T | null | undefined
     },
   })
 }
