@@ -17,6 +17,12 @@ yarn add smart-web-storage
 // localstorage -> a: 1
 import smartWebStorage from 'smart-web-storage'
 
+smartWebStorage.notfound() // null
+
+smartWebStorage.notfound(1) // 1
+
+smartWebStorage.notfound((v) => 1) // 1
+
 smartWebStorage.a() // '1'
 
 smartWebStorage.a = 2
