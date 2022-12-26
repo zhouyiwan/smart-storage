@@ -1,6 +1,6 @@
 {
   "name": "smart-web-storage",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "localstorage操作工具",
   "keywords": [
     "localstorage",
