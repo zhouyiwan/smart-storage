@@ -3,6 +3,17 @@ import webstorage from '../../src/index'
 class LocalStorageMock {
   store: any
 
+  get length() {
+    return Object.keys(this.store).length
+  }
+
+  key(index: number) {
+    const keys = Object.keys(this.store)
+    if (index >= keys.length) return null
+
+    return keys[index]
+  }
+
   constructor() {
     this.store = {}
   }
@@ -27,6 +38,20 @@ class LocalStorageMock {
 Object.defineProperty(window, 'localStorage', { value: new LocalStorageMock() })
 
 describe('正确性测试', () => {
+  test('获取localstorage所有值', () => {
+    webstorage.fullValue1 = JSON.stringify({ a: 1 })
+    webstorage.fullValue2 = JSON.stringify([{ a: 1 }])
+    webstorage.fullValue3 = '1'
+
+    console.log('aaa', window.localStorage.store)
+
+    expect(webstorage()).toEqual({
+      fullValue1: { a: 1 },
+      fullValue2: [{ a: 1 }],
+      fullValue3: '1',
+    })
+  })
+
   test('测试数组字符串', () => {
     webstorage.a11 = JSON.stringify([{ a: 1 }])
     expect(webstorage.a11.a()).toBe(undefined)

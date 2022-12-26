@@ -1,50 +1,9 @@
-import { getValue, DefaultValue } from './utils'
-
-// 尝试将字符串作为json字符串解析
-function tryParseStringAsJson(val: string | null) {
-  if (val == null) return val
-  if (val.length < 2) return val
-  const innerVal = val.trim()
-  if (innerVal.length < 2) return val
-  try {
-    const firstChar = innerVal[0]
-    const lastChar = innerVal[innerVal.length - 1]
-    if (
-      (firstChar === '{' && lastChar === '}') ||
-      (firstChar === '[' && lastChar == ']')
-    )
-      return JSON.parse(innerVal)
-  } catch (ex) {
-    console.error(ex)
-  }
-
-  return val
-}
-
-function getValueByPath(keyPath: string[] = []) {
-  if (!keyPath.length) return null
-  const firstKey = keyPath[0]
-  const restKeyPath = keyPath.slice(1)
-
-  let rawDataFromStorage = null
-
-  try {
-    rawDataFromStorage = window.localStorage.getItem(firstKey)
-  } catch (ex) {
-    return null
-  }
-
-  const valueInLocal = tryParseStringAsJson(rawDataFromStorage)
-
-  return getValueByKeyPath(restKeyPath, valueInLocal)
-
-  function getValueByKeyPath(innerkeyPath: string[], obj: object) {
-    return innerkeyPath.reduce((res, curKey) => {
-      if (res == null) return res
-      return (res as any)[curKey]
-    }, obj)
-  }
-}
+import {
+  getValue,
+  DefaultValue,
+  getValueByPath,
+  getFullLocalStorage,
+} from './utils'
 
 // 怎么处理中间层级有值的情况？
 function setValue(keyPath: string[], value: string) {
@@ -112,6 +71,13 @@ function factoryWebStorage(keyPath: string[] = []): WebStorage {
   // eslint-disable-next-line
   return new Proxy((() => { }) as unknown as WebStorage, {
     get(target, propKey: string) {
+      /**
+       * 返回一个新的proxy实例，支持以下用法：
+       * const cache = webstorage.a;
+       * cache.b;
+       * webstorage.a
+       * 如果公用一个实例，key push进入数组后就退不出来了
+       */
       return factoryWebStorage([...innerKeyPath, propKey])
     },
     set(target, propKey: string, value) {
@@ -122,7 +88,7 @@ function factoryWebStorage(keyPath: string[] = []): WebStorage {
     // 如果获取的值不存在怎么办？
     // @ts-ignore
     apply<T = unknown>(target, self, [defaultValue]) {
-      // if (innerKeyPath.length === 0) return
+      if (innerKeyPath.length === 0) return getFullLocalStorage()
       return getValue(
         getValueByPath([...innerKeyPath]) as unknown as T,
         defaultValue
