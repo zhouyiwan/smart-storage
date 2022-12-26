@@ -14,9 +14,11 @@ yarn add smart-web-storage
 ## API
 
 ```javascript
-// localstorage -> a: 1
 import smartWebStorage from 'smart-web-storage'
+// localstorage -> c: 1, b: {"a": 1}
+smartWebStorage() // {c: 1, b: {a: 1}}
 
+// localstorage -> a: 1
 smartWebStorage.notfound() // null
 
 smartWebStorage.notfound(1) // 1
