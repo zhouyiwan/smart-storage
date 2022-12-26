@@ -19,7 +19,6 @@ import smartWebStorage from 'smart-web-storage'
 smartWebStorage() // {c: 1, b: {a: 1}}
 
 // localstorage -> a: 1
-
 smartWebStorage.notfound() // null
 
 smartWebStorage.notfound(1) // 1
