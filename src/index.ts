@@ -2,56 +2,10 @@ import {
   getValue,
   DefaultValue,
   getValueByPath,
+  setValue,
   getFullLocalStorage,
+  removeLocalStorageByPath,
 } from './utils'
-
-// 怎么处理中间层级有值的情况？
-function setValue(keyPath: string[], value: string) {
-  const innerValue = value
-
-  if (keyPath.length === 1) {
-    try {
-      window.localStorage.setItem(keyPath[0], innerValue)
-    } catch (ex) {
-      console.error(ex)
-      return false
-    }
-    return true
-  }
-
-  const firstKey = keyPath[0]
-
-  let navtiveStorageValue = getValueByPath([firstKey])
-
-  if (navtiveStorageValue == null) {
-    navtiveStorageValue = {}
-  } else if (typeof navtiveStorageValue !== 'object') {
-    console.error('不能设置基础值的属性')
-    return false
-  }
-
-  const resetKeys = keyPath.slice(1, -1)
-
-  let curItem: { [index: string]: any } = navtiveStorageValue || {}
-
-  for (var i = 0, len = resetKeys.length; i < len; i++) {
-    if (curItem[resetKeys[i]] === undefined) {
-      curItem[resetKeys[i]] = {}
-    }
-    curItem = curItem[resetKeys[i]]
-  }
-
-  const lastKey = keyPath[keyPath.length - 1]
-
-  curItem[lastKey] = innerValue
-
-  try {
-    window.localStorage.setItem(keyPath[0], JSON.stringify(navtiveStorageValue))
-    return true
-  } catch (ex) {
-    return false
-  }
-}
 
 interface WebStorage<T = any> {
   (defaultVale?: DefaultValue<T>): T
@@ -80,6 +34,7 @@ function factoryWebStorage(keyPath: string[] = []): WebStorage {
        */
       return factoryWebStorage([...innerKeyPath, propKey])
     },
+    // 如果设置的是对象呢？例如：a.b = {c: 1}
     set(target, propKey: string, value) {
       // 重新格式化重新设置
       setValue([...innerKeyPath, propKey], value)
@@ -93,6 +48,16 @@ function factoryWebStorage(keyPath: string[] = []): WebStorage {
         getValueByPath([...innerKeyPath]) as unknown as T,
         defaultValue
       ) as unknown as T | null | undefined
+    },
+    deleteProperty(target, propKey: string) {
+      if (innerKeyPath.length === 0) {
+        try {
+          window.localStorage.clear()
+          return true
+        } catch (ex) {
+          return false
+        }
+      } else return removeLocalStorageByPath([...innerKeyPath, propKey])
     },
   })
 }
