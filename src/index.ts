@@ -55,6 +55,7 @@ function factoryWebStorage(keyPath: string[] = []): WebStorage {
         defaultValue
       ) as unknown as T | null | undefined
     },
+    // TOFIX: 如果删除的是数组let a = [1, 2]; delete a[0] --> [empty, 2]
     deleteProperty(target, propKey: string) {
       // 引入self表示当前代理对象自己是因为delete webstorage会报错
       // 严格模式下delete需要删除属性引用，不能直接删除标识符
