@@ -75,6 +75,10 @@ describe('正确性测试', () => {
 
     expect(webstorage.self()).toEqual({ a: { a: 1 }, b: '2', c: [1, 2] })
 
+    expect(webstorage).toBe(webstorage.self)
+    expect(webstorage).toBe(webstorage.self.self)
+    expect(webstorage).toBe(webstorage.self.self.self)
+
     webstorage.a = 1
     webstorage.b = 1
     delete webstorage.self
