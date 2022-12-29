@@ -24,7 +24,8 @@ function factoryWebStorage(keyPath: string[] = []): WebStorage {
   let innerKeyPath = keyPath.slice()
   // eslint-disable-next-line
   return new Proxy((() => { }) as unknown as WebStorage, {
-    get(target, propKey: string) {
+    get(target, propKey: string, receiver) {
+      if (propKey === 'self') return receiver
       /**
        * 返回一个新的proxy实例，支持以下用法：
        * const cache = webstorage.a;
@@ -36,6 +37,11 @@ function factoryWebStorage(keyPath: string[] = []): WebStorage {
     },
     // 如果设置的是对象呢？例如：a.b = {c: 1}
     set(target, propKey: string, value) {
+      // TODO: 添加设置self
+      if (propKey === 'self') {
+        console.error('self是保留字')
+        return false
+      }
       // 重新格式化重新设置
       setValue([...innerKeyPath, propKey], value)
       return true
@@ -50,7 +56,9 @@ function factoryWebStorage(keyPath: string[] = []): WebStorage {
       ) as unknown as T | null | undefined
     },
     deleteProperty(target, propKey: string) {
-      if (innerKeyPath.length === 0) {
+      // 引入self表示当前代理对象自己是因为delete webstorage会报错
+      // 严格模式下delete需要删除属性引用，不能直接删除标识符
+      if (!propKey || propKey === 'self') {
         try {
           window.localStorage.clear()
           return true

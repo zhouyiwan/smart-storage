@@ -40,6 +40,24 @@ function tryParseStringAsJson(val: string | null) {
   return val
 }
 
+// 来自: https://github.com/reduxjs/redux/blob/master/src/utils/isPlainObject.ts
+function isPlainObject(obj: any): boolean {
+  if (typeof obj !== 'object' || obj === null) return false
+
+  let proto = obj
+  while (Object.getPrototypeOf(proto) !== null) {
+    proto = Object.getPrototypeOf(proto)
+  }
+
+  return Object.getPrototypeOf(obj) === proto
+}
+
+// 只会stringify{}和[]，其他类型数据原样返回
+function stringifyValue(value: any): string {
+  if (isPlainObject(value) || Array.isArray(value)) return JSON.stringify(value)
+  return value
+}
+
 function getValueByPath(keyPath: string[] = []) {
   if (!keyPath.length) return null
   const firstKey = keyPath[0]
@@ -79,12 +97,10 @@ function getFullLocalStorage() {
   }, {})
 }
 
-function setValue(keyPath: string[], value: string) {
-  const innerValue = value
-
+function setValue(keyPath: string[], value: any) {
   if (keyPath.length === 1) {
     try {
-      window.localStorage.setItem(keyPath[0], innerValue)
+      window.localStorage.setItem(keyPath[0], stringifyValue(value))
     } catch (ex) {
       console.error(ex)
       return false
@@ -103,6 +119,7 @@ function setValue(keyPath: string[], value: string) {
     return false
   }
 
+  // 这里不包含最后一个key--------------v
   const resetKeys = keyPath.slice(1, -1)
 
   let curItem: { [index: string]: any } = navtiveStorageValue || {}
@@ -116,7 +133,7 @@ function setValue(keyPath: string[], value: string) {
 
   const lastKey = keyPath[keyPath.length - 1]
 
-  curItem[lastKey] = innerValue
+  curItem[lastKey] = value
 
   try {
     window.localStorage.setItem(keyPath[0], JSON.stringify(navtiveStorageValue))
@@ -149,7 +166,7 @@ function removeLocalStorageByPath(keyPath: string[]): boolean {
       // @ts-ignore
       delete parentValue[deletedKey]
       // 这个有问题吧
-      setValue(keyPath.slice(0, -1), JSON.stringify(parentValue))
+      setValue(keyPath.slice(0, -1), parentValue)
       return true
     } catch (ex) {
       return false
