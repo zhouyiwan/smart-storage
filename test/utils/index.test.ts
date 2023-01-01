@@ -96,7 +96,7 @@ describe('正确性测试', () => {
     expect(webstorage.a()).toEqual({})
   })
 
-  test.only('删除数组子项', () => {
+  test('删除数组子项', () => {
     webstorage.a = { a: 1, c: [0, 1] }
     delete webstorage.a.c[0]
     expect(webstorage()).toEqual({ a: { a: 1, c: [1] } })
