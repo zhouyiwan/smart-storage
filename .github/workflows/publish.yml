@@ -33,6 +33,9 @@ jobs:
       run: |
         npm run test
 
+    - name: 构建
+        npm run build
+
     - name: 调试工作流
       env:
         NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
