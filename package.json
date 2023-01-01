@@ -30,7 +30,7 @@
     "build": "yarn build:types && yarn build:commonjs && yarn build:es && yarn build:umd && yarn build:umd:min",
     "clean": "rimraf lib dist es coverage",
     "format": "prettier --write \"{src,test}/**/*.{js,ts}\" \"docs/**/*.md\"",
-    "lint": "eslint src --ext ts,js test/utils",
+    "lint": "eslint src --ext ts,js test",
     "prepare": "yarn clean && yarn build",
     "pretest": "yarn lint",
     "test": "jest",

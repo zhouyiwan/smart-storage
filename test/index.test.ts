@@ -1,4 +1,4 @@
-import webstorage from '../../src/index'
+import webstorage from '../src/index'
 
 class LocalStorageMock {
   store: any
