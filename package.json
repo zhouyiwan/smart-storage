@@ -1,6 +1,6 @@
 {
   "name": "smart-web-storage",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "localstorage操作工具",
   "keywords": [
     "localstorage",
@@ -37,10 +37,8 @@
     "type-tests": "yarn tsc -p test/typetests/tsconfig.json",
     "coverage": "codecov"
   },
-  "peerDependencies": {
-  },
-  "peerDependenciesMeta": {
-  },
+  "peerDependencies": {},
+  "peerDependenciesMeta": {},
   "dependencies": {
     "@babel/runtime": "^7.12.1"
   },

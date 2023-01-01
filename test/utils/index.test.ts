@@ -68,6 +68,63 @@ describe('正确性测试', () => {
     expect(webstorage.a11[0].a()).toBe(1)
   })
 
+  test('测试关键字self', () => {
+    webstorage.a = { a: 1 }
+    webstorage.b = 2
+    webstorage.c = [1, 2]
+
+    expect(webstorage.self()).toEqual({ a: { a: 1 }, b: '2', c: [1, 2] })
+
+    expect(webstorage).toBe(webstorage.self)
+    expect(webstorage).toBe(webstorage.self.self)
+    expect(webstorage).toBe(webstorage.self.self.self)
+
+    webstorage.a = 1
+    webstorage.b = 1
+    delete webstorage.self
+    expect(webstorage()).toEqual({})
+  })
+
+  test('设置对象', () => {
+    webstorage.a = { a: 1, b: { c: 1 } }
+    expect(webstorage.a.a()).toBe(1)
+    expect(webstorage.a.b()).toEqual({ c: 1 })
+    expect(webstorage.a.b.c()).toBe(1)
+
+    webstorage.a = {}
+    expect(webstorage.a.a()).toBe(undefined)
+    expect(webstorage.a()).toEqual({})
+  })
+
+  test('删除数组子项', () => {
+    webstorage.a = { a: 1, c: [0, 1] }
+    delete webstorage.a.c[0]
+    expect(webstorage()).toEqual({ a: { a: 1, c: [1] } })
+  })
+
+  test('删除', () => {
+    webstorage.a = { a: 1, b: { c: 1 } }
+    expect(webstorage.a.a()).toBe(1)
+    delete webstorage.a.a
+    expect(webstorage.a.a()).toBe(undefined)
+
+    expect(webstorage()).toEqual({ a: { b: { c: 1 } } })
+    delete webstorage.self
+    expect(webstorage()).toEqual({})
+  })
+
+  test('删除一级属性', () => {
+    webstorage.a1 = 1
+    webstorage.a2 = 2
+    delete webstorage.a1
+    expect(webstorage.a1()).toBe(null)
+    expect(webstorage.a2()).toBe('2')
+
+    delete webstorage.self
+
+    expect(webstorage()).toEqual({})
+  })
+
   test('默认值测试', () => {
     expect(webstorage.notfound.a(1)).toBe(1)
     expect(webstorage.notfound.a(() => 'notfound')).toBe('notfound')

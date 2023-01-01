@@ -40,6 +40,24 @@ function tryParseStringAsJson(val: string | null) {
   return val
 }
 
+// 来自: https://github.com/reduxjs/redux/blob/master/src/utils/isPlainObject.ts
+function isPlainObject(obj: any): boolean {
+  if (typeof obj !== 'object' || obj === null) return false
+
+  let proto = obj
+  while (Object.getPrototypeOf(proto) !== null) {
+    proto = Object.getPrototypeOf(proto)
+  }
+
+  return Object.getPrototypeOf(obj) === proto
+}
+
+// 只会stringify{}和[]，其他类型数据原样返回
+function stringifyValue(value: any): string {
+  if (isPlainObject(value) || Array.isArray(value)) return JSON.stringify(value)
+  return value
+}
+
 function getValueByPath(keyPath: string[] = []) {
   if (!keyPath.length) return null
   const firstKey = keyPath[0]
@@ -79,5 +97,100 @@ function getFullLocalStorage() {
   }, {})
 }
 
-export { getValue, tryParseStringAsJson, getValueByPath, getFullLocalStorage }
+function setValue(keyPath: string[], value: any) {
+  if (keyPath.length === 1) {
+    try {
+      window.localStorage.setItem(keyPath[0], stringifyValue(value))
+    } catch (ex) {
+      console.error(ex)
+      return false
+    }
+    return true
+  }
+
+  const firstKey = keyPath[0]
+
+  let navtiveStorageValue = getValueByPath([firstKey])
+
+  if (navtiveStorageValue == null) {
+    navtiveStorageValue = {}
+  } else if (typeof navtiveStorageValue !== 'object') {
+    console.error('不能设置基础值的属性')
+    return false
+  }
+
+  // 这里不包含最后一个key--------------v
+  const resetKeys = keyPath.slice(1, -1)
+
+  let curItem: { [index: string]: any } = navtiveStorageValue || {}
+
+  for (var i = 0, len = resetKeys.length; i < len; i++) {
+    if (curItem[resetKeys[i]] === undefined) {
+      curItem[resetKeys[i]] = {}
+    }
+    curItem = curItem[resetKeys[i]]
+  }
+
+  const lastKey = keyPath[keyPath.length - 1]
+
+  curItem[lastKey] = value
+
+  try {
+    window.localStorage.setItem(keyPath[0], JSON.stringify(navtiveStorageValue))
+    return true
+  } catch (ex) {
+    return false
+  }
+}
+
+function isStringNumber(str: string): boolean {
+  if (isNaN(+str)) return false
+  return true
+}
+
+// 在报错情况下返回false
+// 返回true只保证localStorage中没有该值，并不表示删除成功，有可能本来就没有这个值
+function removeLocalStorageByPath(keyPath: string[]): boolean {
+  if (keyPath.length === 0) return false
+  if (keyPath.length === 1) {
+    try {
+      window.localStorage.removeItem(keyPath[0])
+      return true
+    } catch (ex) {
+      console.error(ex)
+      return false
+    }
+  }
+
+  let parentValue = getValueByPath(keyPath.slice(0, -1))
+  const deletedKey = keyPath[keyPath.length - 1]
+
+  // 存在且是对象
+  if (parentValue && typeof parentValue === 'object') {
+    try {
+      if (isStringNumber(deletedKey) && Array.isArray(parentValue)) {
+        parentValue = parentValue.filter((item, index) => index !== +deletedKey)
+      } else {
+        // @ts-ignore
+        delete parentValue[deletedKey]
+      }
+      // 这个有问题吧
+      setValue(keyPath.slice(0, -1), parentValue)
+      return true
+    } catch (ex) {
+      return false
+    }
+  }
+
+  return true
+}
+
+export {
+  getValue,
+  tryParseStringAsJson,
+  getValueByPath,
+  getFullLocalStorage,
+  setValue,
+  removeLocalStorageByPath,
+}
 export type { DefaultValue }
