@@ -143,6 +143,11 @@ function setValue(keyPath: string[], value: any) {
   }
 }
 
+function isStringNumber(str: string): boolean {
+  if (isNaN(+str)) return false
+  return true
+}
+
 // 在报错情况下返回false
 // 返回true只保证localStorage中没有该值，并不表示删除成功，有可能本来就没有这个值
 function removeLocalStorageByPath(keyPath: string[]): boolean {
@@ -157,14 +162,18 @@ function removeLocalStorageByPath(keyPath: string[]): boolean {
     }
   }
 
-  const parentValue = getValueByPath(keyPath.slice(0, -1))
+  let parentValue = getValueByPath(keyPath.slice(0, -1))
   const deletedKey = keyPath[keyPath.length - 1]
 
   // 存在且是对象
   if (parentValue && typeof parentValue === 'object') {
     try {
-      // @ts-ignore
-      delete parentValue[deletedKey]
+      if (isStringNumber(deletedKey) && Array.isArray(parentValue)) {
+        parentValue = parentValue.filter((item, index) => index !== +deletedKey)
+      } else {
+        // @ts-ignore
+        delete parentValue[deletedKey]
+      }
       // 这个有问题吧
       setValue(keyPath.slice(0, -1), parentValue)
       return true
