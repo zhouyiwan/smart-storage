@@ -33,11 +33,11 @@ jobs:
       run: |
         npm run test
 
-    # - name: 发包
-    #   run: |
-    #     npm run publish
-    #   env:
-    #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    - name: 发包
+      run: |
+        npm run publish
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
     
     - name: 读取当前版本号
       id: version
