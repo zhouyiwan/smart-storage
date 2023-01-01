@@ -22,7 +22,7 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
-        registry-url: https://registry.npmjs.org:_authToken=${{ secrets.NPM_TOKEN }}
+        registry-url: "https://registry.npmjs.org"
 
     # 执行依赖安装
     - name: 安装依赖
@@ -33,6 +33,11 @@ jobs:
       run: |
         npm run test
 
+    - name: 调试工作流
+      env:
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      run: |
+        echo $NPM_TOKEN
     - name: 发包
       run: |
         npm publish
