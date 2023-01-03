@@ -5,6 +5,7 @@ import {
   setValue,
   getFullLocalStorage,
   removeLocalStorageByPath,
+  clearStorage,
 } from './utils'
 
 interface WebStorage<T = any> {
@@ -59,14 +60,14 @@ function factoryWebStorage(keyPath: string[] = []): WebStorage {
     deleteProperty(target, propKey: string) {
       // 引入self表示当前代理对象自己是因为delete webstorage会报错
       // 严格模式下delete需要删除属性引用，不能直接删除标识符
-      if (!propKey || propKey === 'self') {
-        try {
-          window.localStorage.clear()
-          return true
-        } catch (ex) {
-          return false
-        }
-      } else return removeLocalStorageByPath([...innerKeyPath, propKey])
+      if (!propKey) return clearStorage()
+
+      if (propKey === 'self' && innerKeyPath.length === 0) {
+        return clearStorage()
+      }
+      if (propKey === 'self') return removeLocalStorageByPath(innerKeyPath)
+
+      return removeLocalStorageByPath([...innerKeyPath, propKey])
     },
   })
 }

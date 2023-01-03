@@ -12,7 +12,7 @@ afterEach(() => {
 })
 
 describe('self测试', () => {
-  test('', () => {
+  test('获取全部', () => {
     webstorage.a = { a: 1 }
     webstorage.b = 2
     webstorage.c = [1, 2]
@@ -22,11 +22,23 @@ describe('self测试', () => {
     expect(webstorage).toBe(webstorage.self)
     expect(webstorage).toBe(webstorage.self.self)
     expect(webstorage).toBe(webstorage.self.self.self)
+  })
 
+  test('删除全部', () => {
     webstorage.a = 1
     webstorage.b = 1
     delete webstorage.self
     expect(webstorage()).toEqual({})
+  })
+
+  test('非1级self', () => {
+    webstorage.a = { a: 1 }
+    webstorage.b = 1
+    expect(webstorage.a.self()).toEqual({ a: 1 })
+    expect(webstorage.b.self()).toEqual('1')
+
+    delete webstorage.a.self
+    expect(webstorage.self()).toEqual({ b: '1' })
   })
 })
 
