@@ -6,7 +6,6 @@ import {
   getFullLocalStorage,
   removeLocalStorageByPath,
 } from './utils'
-console.log(1)
 
 interface WebStorage<T = any> {
   (defaultVale?: DefaultValue<T>): T

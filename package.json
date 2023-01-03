@@ -31,6 +31,7 @@
     "clean": "rimraf lib dist es coverage",
     "format": "prettier --write \"{src,test}/**/*.{js,ts}\" \"docs/**/*.md\"",
     "lint": "eslint src --ext ts,js test/utils",
+    "lint:fix": "eslint src --ext ts,js test/utils --fix",
     "prepare": "yarn clean && yarn build && husky install",
     "pretest": "yarn lint",
     "test": "jest",

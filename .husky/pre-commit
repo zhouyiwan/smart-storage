@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-npx eslint src --ext ts,js test/utils --fix && git add . && npm test
+npm run lint:fix && git add . && npm test
