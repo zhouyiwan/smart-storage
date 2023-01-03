@@ -29,6 +29,12 @@ smartWebStorage.notfound(1) // 1
 
 smartWebStorage.notfound((v) => 1) // 1
 
+// 添加全局数据
+// 环境：localstorage -> 空
+smartWebStorage.self = {a: 1, b: {a: 1}} // a: '1', b: {"a": 1}
+// 环境：localstorage -> 空
+smartWebStorage.self = [1, {a: 1}] // 0: '1', 1: {"a": 1}
+
 // 正常使用
 smartWebStorage.c = {c1: 1, c2: 2} // {"c": {"c1": 1, "c2": 2}}
 
