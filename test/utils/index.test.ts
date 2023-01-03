@@ -46,11 +46,16 @@ describe('self测试', () => {
     expect(webstorage.a.self()).toEqual({ a: 1 })
   })
 
-  test('self设置1', () => {
+  test('self设置object', () => {
     webstorage.self = { a: 1, b: { a: 1 } }
     expect(webstorage()).toEqual({ a: '1', b: { a: 1 } })
     expect(webstorage.a()).toEqual('1')
     expect(webstorage.b.a()).toEqual(1)
+  })
+
+  test('self设置数组', () => {
+    webstorage.self = [1, { a: 1 }]
+    expect(webstorage()).toEqual({ 0: '1', 1: { a: 1 } })
   })
 })
 
