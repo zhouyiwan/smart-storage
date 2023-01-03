@@ -1,6 +1,6 @@
 {
   "name": "smart-web-storage",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "localstorage操作工具",
   "keywords": [
     "localstorage",
@@ -31,8 +31,9 @@
     "clean": "rimraf lib dist es coverage",
     "format": "prettier --write \"{src,test}/**/*.{js,ts}\" \"docs/**/*.md\"",
     "lint": "eslint src --ext ts,js test/utils",
-    "prepare": "yarn clean && yarn build",
-    "pretest": "yarn lint",
+    "lint:fix": "eslint src --ext ts,js test/utils --fix",
+    "prepare": "yarn clean && yarn build && husky install",
+    "pretest": "yarn lint:fix",
     "test": "jest",
     "type-tests": "yarn tsc -p test/typetests/tsconfig.json",
     "coverage": "codecov"
@@ -51,6 +52,8 @@
     "@babel/plugin-transform-runtime": "^7.12.1",
     "@babel/preset-env": "^7.12.1",
     "@babel/preset-typescript": "^7.14.5",
+    "@commitlint/cli": "^17.3.0",
+    "@commitlint/config-conventional": "^17.3.0",
     "@rollup/plugin-babel": "^5.2.1",
     "@rollup/plugin-commonjs": "^15.1.0",
     "@rollup/plugin-node-resolve": "^9.0.0",
@@ -70,6 +73,7 @@
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-react": "^7.21.5",
     "glob": "^7.1.6",
+    "husky": "^8.0.2",
     "jest": "^26.6.1",
     "prettier": "^2.1.2",
     "rimraf": "^3.0.2",

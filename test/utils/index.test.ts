@@ -1,51 +1,60 @@
 import webstorage from '../../src/index'
+import LocalStorageMock from '../mock/localstorage'
 
-class LocalStorageMock {
-  store: any
-
-  get length() {
-    return Object.keys(this.store).length
-  }
-
-  key(index: number) {
-    const keys = Object.keys(this.store)
-    if (index >= keys.length) return null
-
-    return keys[index]
-  }
-
-  constructor() {
-    this.store = {}
-  }
-
-  clear() {
-    this.store = {}
-  }
-
-  getItem(key: string) {
-    return this.store[key] || null
-  }
-
-  setItem(key: string, value: string) {
-    this.store[key] = String(value)
-  }
-
-  removeItem(key: string) {
-    delete this.store[key]
-  }
-
-  clean() {
-    this.store = {}
-  }
-}
-
-Object.defineProperty(window, 'localStorage', { value: new LocalStorageMock() })
+beforeAll(() => {
+  Object.defineProperty(window, 'localStorage', {
+    value: new LocalStorageMock(),
+  })
+})
 
 afterEach(() => {
   window.localStorage.clean()
 })
 
-describe('正确性测试', () => {
+describe('self测试', () => {
+  test('获取全部', () => {
+    webstorage.a = { a: 1 }
+    webstorage.b = 2
+    webstorage.c = [1, 2]
+
+    expect(webstorage.self()).toEqual({ a: { a: 1 }, b: '2', c: [1, 2] })
+
+    expect(webstorage).toBe(webstorage.self)
+    expect(webstorage).toBe(webstorage.self.self)
+    expect(webstorage).toBe(webstorage.self.self.self)
+  })
+
+  test('删除全部', () => {
+    webstorage.a = 1
+    webstorage.b = 1
+    delete webstorage.self
+    expect(webstorage()).toEqual({})
+  })
+
+  test('非1级self', () => {
+    webstorage.a = { a: 1 }
+    webstorage.b = 1
+    expect(webstorage.a.self()).toEqual({ a: 1 })
+    expect(webstorage.b.self()).toEqual('1')
+
+    delete webstorage.a.self
+    expect(webstorage.self()).toEqual({ b: '1' })
+  })
+
+  test('self设置', () => {
+    webstorage.a.self = { a: 1 }
+    expect(webstorage.a.self()).toEqual({ a: 1 })
+  })
+
+  test('self设置1', () => {
+    webstorage.self = { a: 1, b: { a: 1 } }
+    expect(webstorage()).toEqual({ a: '1', b: { a: 1 } })
+    expect(webstorage.a()).toEqual('1')
+    expect(webstorage.b.a()).toEqual(1)
+  })
+})
+
+describe('读取测试', () => {
   test('获取localstorage所有值 - 空', () => {
     expect(webstorage()).toEqual({})
   })
@@ -68,21 +77,40 @@ describe('正确性测试', () => {
     expect(webstorage.a11[0].a()).toBe(1)
   })
 
-  test('测试关键字self', () => {
-    webstorage.a = { a: 1 }
-    webstorage.b = 2
-    webstorage.c = [1, 2]
+  test('引用测试', () => {
+    webstorage.a1.b.c = 1
 
-    expect(webstorage.self()).toEqual({ a: { a: 1 }, b: '2', c: [1, 2] })
+    const a1 = webstorage.a1
+    expect(a1()).toEqual({ b: { c: 1 } })
+    expect(a1()).toEqual({ b: { c: 1 } })
+    expect(a1.b()).toEqual({ c: 1 })
+  })
+})
 
-    expect(webstorage).toBe(webstorage.self)
-    expect(webstorage).toBe(webstorage.self.self)
-    expect(webstorage).toBe(webstorage.self.self.self)
+describe('写入测试', () => {
+  test('常规测试', () => {
+    webstorage.a11 = JSON.stringify([{ a: 1 }])
+    webstorage.a1.b.c = 1
+
+    expect(webstorage.a1()).toEqual({ b: { c: 1 } })
+    expect(webstorage.a1.b()).toEqual({ c: 1 })
+    expect(webstorage.a1.b.c()).toBe(1)
+  })
+
+  test('获取不到值', () => {
+    expect(webstorage.b1.c1.e1()).toEqual(null)
+
+    webstorage.b2 = JSON.stringify({ a: 1 })
+    expect(webstorage.b2.b()).toEqual(undefined)
+    expect(webstorage.b2.b.c()).toEqual(undefined)
+    expect(webstorage.b3()).toEqual(null)
+  })
+
+  test('常规测试1', () => {
+    expect(webstorage.a()).toBe(null)
 
     webstorage.a = 1
-    webstorage.b = 1
-    delete webstorage.self
-    expect(webstorage()).toEqual({})
+    expect(webstorage.a()).toBe('1')
   })
 
   test('设置对象', () => {
@@ -95,7 +123,9 @@ describe('正确性测试', () => {
     expect(webstorage.a.a()).toBe(undefined)
     expect(webstorage.a()).toEqual({})
   })
+})
 
+describe('删除测试', () => {
   test('删除数组子项', () => {
     webstorage.a = { a: 1, c: [0, 1] }
     delete webstorage.a.c[0]
@@ -124,46 +154,16 @@ describe('正确性测试', () => {
 
     expect(webstorage()).toEqual({})
   })
+})
 
+describe('默认值测试', () => {
   test('默认值测试', () => {
     expect(webstorage.notfound.a(1)).toBe(1)
     expect(webstorage.notfound.a(() => 'notfound')).toBe('notfound')
   })
+})
 
-  test('常规测试1', () => {
-    expect(webstorage.a()).toBe(null)
-
-    webstorage.a = 1
-    expect(webstorage.a()).toBe('1')
-  })
-
-  test('常规测试', () => {
-    webstorage.a11 = JSON.stringify([{ a: 1 }])
-    webstorage.a1.b.c = 1
-
-    expect(webstorage.a1()).toEqual({ b: { c: 1 } })
-    expect(webstorage.a1.b()).toEqual({ c: 1 })
-    expect(webstorage.a1.b.c()).toBe(1)
-  })
-
-  test('引用测试', () => {
-    webstorage.a1.b.c = 1
-
-    const a1 = webstorage.a1
-    expect(a1()).toEqual({ b: { c: 1 } })
-    expect(a1()).toEqual({ b: { c: 1 } })
-    expect(a1.b()).toEqual({ c: 1 })
-  })
-
-  test('获取不到值', () => {
-    expect(webstorage.b1.c1.e1()).toEqual(null)
-
-    webstorage.b2 = JSON.stringify({ a: 1 })
-    expect(webstorage.b2.b()).toEqual(undefined)
-    expect(webstorage.b2.b.c()).toEqual(undefined)
-    expect(webstorage.b3()).toEqual(null)
-  })
-
+describe('异常测试', () => {
   test('setItem/getItem异常测试', () => {
     LocalStorageMock.prototype.setItem = function () {
       throw new Error('1')

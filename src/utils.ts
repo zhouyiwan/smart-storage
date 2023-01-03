@@ -1,3 +1,13 @@
+// 清除storage
+function clearStorage() {
+  try {
+    window.localStorage.clear()
+    return true
+  } catch (ex) {
+    return false
+  }
+}
+
 type DefaultValue<T = unknown, U = T> = ((v: T) => T) | U
 
 function initialDefaultValue<T = unknown>(value: T): T {
@@ -192,5 +202,7 @@ export {
   getFullLocalStorage,
   setValue,
   removeLocalStorageByPath,
+  clearStorage,
+  isPlainObject,
 }
 export type { DefaultValue }
