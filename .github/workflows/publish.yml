@@ -27,13 +27,6 @@ jobs:
     - name: 执行测试
       run: npm run test
 
-    - name: 构建
-      run: npm run build
-
-    - name: 调试工作流
-      env:
-        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      run: echo $NPM_TOKEN
     - name: 发包
       run: npm publish
       env:
