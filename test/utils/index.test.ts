@@ -40,6 +40,18 @@ describe('self测试', () => {
     delete webstorage.a.self
     expect(webstorage.self()).toEqual({ b: '1' })
   })
+
+  test('self设置', () => {
+    webstorage.a.self = { a: 1 }
+    expect(webstorage.a.self()).toEqual({ a: 1 })
+  })
+
+  test('self设置1', () => {
+    webstorage.self = { a: 1, b: { a: 1 } }
+    expect(webstorage()).toEqual({ a: '1', b: { a: 1 } })
+    expect(webstorage.a()).toEqual('1')
+    expect(webstorage.b.a()).toEqual(1)
+  })
 })
 
 describe('读取测试', () => {

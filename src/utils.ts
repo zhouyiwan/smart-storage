@@ -203,5 +203,6 @@ export {
   setValue,
   removeLocalStorageByPath,
   clearStorage,
+  isPlainObject,
 }
 export type { DefaultValue }

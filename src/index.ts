@@ -6,6 +6,7 @@ import {
   getFullLocalStorage,
   removeLocalStorageByPath,
   clearStorage,
+  isPlainObject,
 } from './utils'
 
 interface WebStorage<T = any> {
@@ -38,14 +39,38 @@ function factoryWebStorage(keyPath: string[] = []): WebStorage {
     },
     // 如果设置的是对象呢？例如：a.b = {c: 1}
     set(target, propKey: string, value) {
-      // TODO: 添加设置self
-      if (propKey === 'self') {
-        console.error('self是保留字')
-        return false
+      if (!propKey && innerKeyPath.length === 0) {
+        return setFullStorage(value)
       }
-      // 重新格式化重新设置
-      setValue([...innerKeyPath, propKey], value)
+
+      if (propKey === 'self') {
+        if (innerKeyPath.length !== 0) {
+          setValue(innerKeyPath, value)
+        } else {
+          return setFullStorage(value)
+        }
+      } else {
+        // 重新格式化重新设置
+        setValue([...innerKeyPath, propKey], value)
+      }
+
       return true
+
+      function setFullStorage(value: any) {
+        if (isPlainObject(value)) {
+          Object.keys(value).forEach((key: string) => {
+            setValue([key], value[key])
+          })
+        } else if (Array.isArray(value)) {
+          value.forEach((item, key) => {
+            setValue([key.toString()], item)
+          })
+        } else {
+          console.error('')
+          return false
+        }
+        return true
+      }
     },
     // 如果获取的值不存在怎么办？
     // @ts-ignore
