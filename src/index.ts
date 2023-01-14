@@ -100,10 +100,10 @@ function factoryWebStorage(
   })
 }
 
-const smartLocalStorage = factoryWebStorage([], window.localStorage)
+const lstorage = factoryWebStorage([], window.localStorage)
 
-const smartSessionStorage = factoryWebStorage([], window.sessionStorage)
+const sstorage = factoryWebStorage([], window.sessionStorage)
 
-export { smartLocalStorage, smartSessionStorage }
+export { lstorage, sstorage }
 
-export default smartLocalStorage
+export default lstorage

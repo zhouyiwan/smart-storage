@@ -1,7 +1,7 @@
-import webstorage, { smartSessionStorage } from '../../src/index'
+import webstorage, { sstorage } from '../../src/index'
 
 suit(webstorage, window.localStorage)
-suit(smartSessionStorage, window.sessionStorage)
+suit(sstorage, window.sessionStorage)
 
 function suit(webstorage: any, storage: any) {
   afterEach(() => {
