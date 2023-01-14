@@ -1,4 +1,5 @@
 import webstorage, { sstorage } from '../../src/index'
+import { SELF_KEYWORD } from '../../src/utils'
 
 suit(webstorage, window.localStorage)
 suit(sstorage, window.sessionStorage)
@@ -14,43 +15,49 @@ function suit(webstorage: any, storage: any) {
       webstorage.b = 2
       webstorage.c = [1, 2]
 
-      expect(webstorage._self()).toEqual({ a: { a: 1 }, b: '2', c: [1, 2] })
+      expect(webstorage[SELF_KEYWORD]()).toEqual({
+        a: { a: 1 },
+        b: '2',
+        c: [1, 2],
+      })
 
-      expect(webstorage).toBe(webstorage._self)
-      expect(webstorage).toBe(webstorage._self._self._self)
+      expect(webstorage).toBe(webstorage[SELF_KEYWORD])
+      expect(webstorage).toBe(
+        webstorage[SELF_KEYWORD][SELF_KEYWORD][SELF_KEYWORD]
+      )
     })
 
     test('删除全部', () => {
       webstorage.a = 1
       webstorage.b = 1
-      delete webstorage._self
+      delete webstorage[SELF_KEYWORD]
       expect(webstorage()).toEqual({})
     })
 
     test('非1级self', () => {
       webstorage.a = { a: 1 }
       webstorage.b = 1
-      expect(webstorage.a._self()).toEqual({ a: 1 })
-      expect(webstorage.b._self()).toEqual('1')
+      expect(webstorage.a[SELF_KEYWORD]()).toEqual({ a: 1 })
+      expect(webstorage.b[SELF_KEYWORD]()).toEqual('1')
 
-      delete webstorage.a._self
-      expect(webstorage._self()).toEqual({ b: '1' })
+      delete webstorage.a[SELF_KEYWORD]
+      expect(webstorage[SELF_KEYWORD]()).toEqual({ b: '1' })
     })
 
     test('self设置', () => {
-      webstorage.a._self = { a: 1 }
-      expect(webstorage.a._self()).toEqual({ a: 1 })
+      webstorage.a[SELF_KEYWORD] = { a: 1 }
+      expect(webstorage.a[SELF_KEYWORD]()).toEqual({ a: 1 })
     })
 
     test('self设置object', () => {
-      webstorage._self = { a: 1, b: { a: 1 } }
+      webstorage[SELF_KEYWORD] = { a: 1, b: { a: 1 } }
       expect(webstorage()).toEqual({ a: '1', b: { a: 1 } })
       expect(webstorage.a()).toEqual('1')
       expect(webstorage.b.a()).toEqual(1)
     })
 
     test('self设置数组', () => {
-      webstorage._self = [1, { a: 1 }]
+      webstorage[SELF_KEYWORD] = [1, { a: 1 }]
       expect(webstorage()).toEqual({ 0: '1', 1: { a: 1 } })
     })
   })
@@ -140,7 +147,7 @@ function suit(webstorage: any, storage: any) {
       expect(webstorage.a.a()).toBe(undefined)
 
       expect(webstorage()).toEqual({ a: { b: { c: 1 } } })
-      delete webstorage._self
+      delete webstorage[SELF_KEYWORD]
       expect(webstorage()).toEqual({})
     })
 
@@ -151,7 +158,7 @@ function suit(webstorage: any, storage: any) {
       expect(webstorage.a1()).toBe(null)
       expect(webstorage.a2()).toBe('2')
 
-      delete webstorage._self
+      delete webstorage[SELF_KEYWORD]
 
       expect(webstorage()).toEqual({})
     })

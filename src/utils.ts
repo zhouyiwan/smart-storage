@@ -1,4 +1,4 @@
-const SELF_KEYWORD = '_self'
+const SELF_KEYWORD = 'self'
 
 // 清除storage
 function clearStorage(storage: Storage) {
