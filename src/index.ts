@@ -16,7 +16,10 @@ interface WebStorage<T = any> {
   [index: string]: any
 }
 
-function factoryWebStorage(keyPath: string[] = []): WebStorage {
+function factoryWebStorage(
+  keyPath: string[] = [],
+  storage: Storage = window.localStorage
+): WebStorage {
   if (typeof Proxy === 'undefined') {
     console.error('Proxy is not defined')
     return function _() {
@@ -36,7 +39,7 @@ function factoryWebStorage(keyPath: string[] = []): WebStorage {
        * webstorage.a
        * 如果公用一个实例，key push进入数组后就退不出来了
        */
-      return factoryWebStorage([...innerKeyPath, propKey])
+      return factoryWebStorage([...innerKeyPath, propKey], storage)
     },
     // 如果设置的是对象呢？例如：a.b = {c: 1}
     set(target, propKey: string, value) {
@@ -47,11 +50,11 @@ function factoryWebStorage(keyPath: string[] = []): WebStorage {
         if (innerKeyPath.length === 0) {
           return setFullStorage(value)
         } else {
-          setValue(innerKeyPath, value)
+          setValue(innerKeyPath, value, storage)
         }
       } else {
         // 重新格式化重新设置
-        setValue([...innerKeyPath, propKey], value)
+        setValue([...innerKeyPath, propKey], value, storage)
       }
 
       return true
@@ -59,11 +62,11 @@ function factoryWebStorage(keyPath: string[] = []): WebStorage {
       function setFullStorage(value: any) {
         if (isPlainObject(value)) {
           Object.keys(value).forEach((key: string) => {
-            setValue([key], value[key])
+            setValue([key], value[key], storage)
           })
         } else if (Array.isArray(value)) {
           value.forEach((item, key) => {
-            setValue([key.toString()], item)
+            setValue([key.toString()], item, storage)
           })
         } else {
           console.error('')
@@ -75,9 +78,9 @@ function factoryWebStorage(keyPath: string[] = []): WebStorage {
     // 如果获取的值不存在怎么办？
     // @ts-ignore
     apply<T = unknown>(target, self, [defaultValue]) {
-      if (innerKeyPath.length === 0) return getFullLocalStorage()
+      if (innerKeyPath.length === 0) return getFullLocalStorage(storage)
       return getValue(
-        getValueByPath([...innerKeyPath]) as unknown as T,
+        getValueByPath([...innerKeyPath], storage) as unknown as T,
         defaultValue
       ) as unknown as T | null | undefined
     },
@@ -85,18 +88,22 @@ function factoryWebStorage(keyPath: string[] = []): WebStorage {
     deleteProperty(target, propKey: string) {
       // 引入self表示当前代理对象自己是因为delete webstorage会报错
       // 严格模式下delete需要删除属性引用，不能直接删除标识符
-      if (!propKey) return clearStorage()
+      if (!propKey) return clearStorage(storage)
 
       if (propKey === SELF_KEYWORD) {
-        if (innerKeyPath.length === 0) return clearStorage()
-        return removeLocalStorageByPath(innerKeyPath)
+        if (innerKeyPath.length === 0) return clearStorage(storage)
+        return removeLocalStorageByPath(innerKeyPath, storage)
       }
 
-      return removeLocalStorageByPath([...innerKeyPath, propKey])
+      return removeLocalStorageByPath([...innerKeyPath, propKey], storage)
     },
   })
 }
 
-const smartWebStorage = factoryWebStorage()
+const smartLocalStorage = factoryWebStorage([], window.localStorage)
 
-export default smartWebStorage
+const smartSessionStorage = factoryWebStorage([], window.sessionStorage)
+
+export { smartLocalStorage, smartSessionStorage }
+
+export default smartLocalStorage

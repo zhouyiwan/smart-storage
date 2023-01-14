@@ -1,9 +1,9 @@
 const SELF_KEYWORD = '_self'
 
 // 清除storage
-function clearStorage() {
+function clearStorage(storage: Storage) {
   try {
-    window.localStorage.clear()
+    storage.clear()
     return true
   } catch (ex) {
     return false
@@ -70,7 +70,7 @@ function stringifyValue(value: any): string {
   return value
 }
 
-function getValueByPath(keyPath: string[] = []) {
+function getValueByPath(keyPath: string[] = [], storage: Storage) {
   if (!keyPath.length) return null
   const firstKey = keyPath[0]
   const restKeyPath = keyPath.slice(1)
@@ -78,7 +78,7 @@ function getValueByPath(keyPath: string[] = []) {
   let rawDataFromStorage = null
 
   try {
-    rawDataFromStorage = window.localStorage.getItem(firstKey)
+    rawDataFromStorage = storage.getItem(firstKey)
   } catch (ex) {
     return null
   }
@@ -95,24 +95,24 @@ function getValueByPath(keyPath: string[] = []) {
   }
 }
 
-function getFullLocalStorage() {
-  const fullKeys = new Array(window.localStorage.length)
+function getFullLocalStorage(storage: Storage) {
+  const fullKeys = new Array(storage.length)
     .fill(1)
     .map((_item, index) => {
-      return window.localStorage.key(index)
+      return storage.key(index)
     })
     .filter((item) => item != null)
 
   return fullKeys.reduce<Record<string, any>>((result, key) => {
-    result[key!] = getValueByPath([key!])
+    result[key!] = getValueByPath([key!], storage)
     return result
   }, {})
 }
 
-function setValue(keyPath: string[], value: any) {
+function setValue(keyPath: string[], value: any, storage: Storage) {
   if (keyPath.length === 1) {
     try {
-      window.localStorage.setItem(keyPath[0], stringifyValue(value))
+      storage.setItem(keyPath[0], stringifyValue(value))
     } catch (ex) {
       console.error(ex)
       return false
@@ -122,7 +122,7 @@ function setValue(keyPath: string[], value: any) {
 
   const firstKey = keyPath[0]
 
-  let navtiveStorageValue = getValueByPath([firstKey])
+  let navtiveStorageValue = getValueByPath([firstKey], storage)
 
   if (navtiveStorageValue == null) {
     navtiveStorageValue = {}
@@ -148,7 +148,7 @@ function setValue(keyPath: string[], value: any) {
   curItem[lastKey] = value
 
   try {
-    window.localStorage.setItem(keyPath[0], JSON.stringify(navtiveStorageValue))
+    storage.setItem(keyPath[0], JSON.stringify(navtiveStorageValue))
     return true
   } catch (ex) {
     return false
@@ -162,11 +162,14 @@ function isStringNumber(str: string): boolean {
 
 // 在报错情况下返回false
 // 返回true只保证localStorage中没有该值，并不表示删除成功，有可能本来就没有这个值
-function removeLocalStorageByPath(keyPath: string[]): boolean {
+function removeLocalStorageByPath(
+  keyPath: string[],
+  storage: Storage
+): boolean {
   if (keyPath.length === 0) return false
   if (keyPath.length === 1) {
     try {
-      window.localStorage.removeItem(keyPath[0])
+      storage.removeItem(keyPath[0])
       return true
     } catch (ex) {
       console.error(ex)
@@ -174,7 +177,7 @@ function removeLocalStorageByPath(keyPath: string[]): boolean {
     }
   }
 
-  let parentValue = getValueByPath(keyPath.slice(0, -1))
+  let parentValue = getValueByPath(keyPath.slice(0, -1), storage)
   const deletedKey = keyPath[keyPath.length - 1]
 
   // 存在且是对象
@@ -187,7 +190,7 @@ function removeLocalStorageByPath(keyPath: string[]): boolean {
         delete parentValue[deletedKey]
       }
       // 这个有问题吧
-      setValue(keyPath.slice(0, -1), parentValue)
+      setValue(keyPath.slice(0, -1), parentValue, storage)
       return true
     } catch (ex) {
       return false
