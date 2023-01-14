@@ -31,46 +31,7 @@ import lstorage, { sstorage } from 'smart-web-storage'
 
 **注：lstorage表示localstorage, sstorage表示sessionStorage，两者用法相同。**
 
-### 1. 获取全部localStorage值
-
-```javascript
-// localStorage值如下：
-// c: 1
-// b: {"a": 1}
-lstorage() // {c: "1", b: {a: 1}}
-```
-
-### 2. 获取不存在的localStorage值和使用默认值
-
-```javascript
-// localStorage值如下：
-// a: 1
-lstorage.notfound() // null
-
-lstorage.notfound(1) // 1
-
-lstorage.notfound((v) => 1) // 1
-```
-
-### 3. 设置全部localStorage值
-
-```javascript
-// localStorage
-// empty
-lstorage.self = {a: 1, b: {a: 1}} 
-// localStorage
-// a: 1
-// b: {"a": 1}
-
-// localStorage
-// empty
-lstorage.self = [1, {a: 1}] 
-// localStorage
-// 0: 1
-// 1: {"a": 1}
-```
-
-### 4. 正常使用
+### 1. 正常使用
 
 ```javascript
 // localStorage
@@ -98,7 +59,19 @@ lstorage.c = {c1: 1, c2: 2}
 lstorage.c.c1() // 1
 ```
 
-### 5. 删除值
+### 2. 获取不存在的localStorage值和使用默认值
+
+```javascript
+// localStorage值如下：
+// a: 1
+lstorage.notfound() // null
+
+lstorage.notfound(1) // 1
+
+lstorage.notfound((v) => 1) // 1
+```
+
+### 3. 删除值
 
 ```javascript
 // localStorage
@@ -109,7 +82,33 @@ delete lstorage.c.c1
 delete lstorage.self // 清楚localStorage所有值
 // localStorage
 // empty
+```
 
+### 4. 获取全部localStorage值
+
+```javascript
+// localStorage值如下：
+// c: 1
+// b: {"a": 1}
+lstorage() // {c: "1", b: {a: 1}}
+```
+
+### 5. 设置全部localStorage值
+
+```javascript
+// localStorage
+// empty
+lstorage.self = {a: 1, b: {a: 1}} 
+// localStorage
+// a: 1
+// b: {"a": 1}
+
+// localStorage
+// empty
+lstorage.self = [1, {a: 1}] 
+// localStorage
+// 0: 1
+// 1: {"a": 1}
 ```
 
 **注意：webStorage的读取和写入都有失败风险，所以设置和读取都有可能出现意料之外的情况，虽然smartWebStoreage会兜底异常，但是异常后读取的值无法兜底需要用户手动处理。**
