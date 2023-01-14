@@ -1,3 +1,5 @@
+const SELF_KEYWORD = '_self'
+
 // 清除storage
 function clearStorage() {
   try {
@@ -204,5 +206,6 @@ export {
   removeLocalStorageByPath,
   clearStorage,
   isPlainObject,
+  SELF_KEYWORD,
 }
 export type { DefaultValue }

@@ -7,6 +7,7 @@ import {
   removeLocalStorageByPath,
   clearStorage,
   isPlainObject,
+  SELF_KEYWORD,
 } from './utils'
 
 interface WebStorage<T = any> {
@@ -27,7 +28,7 @@ function factoryWebStorage(keyPath: string[] = []): WebStorage {
   // eslint-disable-next-line
   return new Proxy((() => { }) as unknown as WebStorage, {
     get(target, propKey: string, receiver) {
-      if (propKey === 'self') return receiver
+      if (propKey === SELF_KEYWORD) return receiver
       /**
        * 返回一个新的proxy实例，支持以下用法：
        * const cache = webstorage.a;
@@ -39,15 +40,14 @@ function factoryWebStorage(keyPath: string[] = []): WebStorage {
     },
     // 如果设置的是对象呢？例如：a.b = {c: 1}
     set(target, propKey: string, value) {
-      if (!propKey && innerKeyPath.length === 0) {
-        return setFullStorage(value)
-      }
+      // 支持：webstorage = {a: 1}
+      if (!propKey && innerKeyPath.length === 0) return setFullStorage(value)
 
-      if (propKey === 'self') {
-        if (innerKeyPath.length !== 0) {
-          setValue(innerKeyPath, value)
-        } else {
+      if (propKey === SELF_KEYWORD) {
+        if (innerKeyPath.length === 0) {
           return setFullStorage(value)
+        } else {
+          setValue(innerKeyPath, value)
         }
       } else {
         // 重新格式化重新设置
@@ -87,10 +87,10 @@ function factoryWebStorage(keyPath: string[] = []): WebStorage {
       // 严格模式下delete需要删除属性引用，不能直接删除标识符
       if (!propKey) return clearStorage()
 
-      if (propKey === 'self' && innerKeyPath.length === 0) {
-        return clearStorage()
+      if (propKey === SELF_KEYWORD) {
+        if (innerKeyPath.length === 0) return clearStorage()
+        return removeLocalStorageByPath(innerKeyPath)
       }
-      if (propKey === 'self') return removeLocalStorageByPath(innerKeyPath)
 
       return removeLocalStorageByPath([...innerKeyPath, propKey])
     },
